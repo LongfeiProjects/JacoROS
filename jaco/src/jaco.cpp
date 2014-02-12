@@ -203,10 +203,6 @@ namespace kinova
 	
 	void Jaco::readJacoStatus()
 	{	
-        std::cout<< "API state: " << checkApiInitialised() << std::endl;
-
-        isApiInCtrl();
-
         setCartesianModeAfterApiControlLost();
 
 
@@ -650,18 +646,7 @@ namespace kinova
 		jaco_exc = NULL;
 
 		MonoObject* apiState = mono_runtime_invoke(IsApiInCtrl, jaco_classobject, NULL, &jaco_exc);
-
-
-
 		bool state = *(bool*)mono_object_unbox(apiState);
-
-		std::cout<< "API control state: " << state << std::endl;
-
-
-		/*
-		 *  	MonoObject *jacostate_obj = mono_runtime_invoke(GetState, jaco_classobject, NULL, &jaco_exc);
-            	jacostate = *((JacoArmState*)mono_object_unbox(jacostate_obj));
-		 */
 
 		if (jaco_exc != NULL)
                 {
