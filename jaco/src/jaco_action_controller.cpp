@@ -178,28 +178,24 @@ namespace kinova
 
                         if ( num_activeTrajectory == 0)
                         {
-                                
-                                if (is_trajectory_finished())
-                                {
                                         
-                                        jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-                                        movejoint_done = false;
-                                        joint_active_goal.setSucceeded(jtaction_res);
+							jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+							movejoint_done = false;
+							joint_active_goal.setSucceeded(jtaction_res);
 
-                                        std::cout<<" Final angles in degree"<<std::endl;
-                                        for(int i = 0; i< 6; i++)
-                                        std::cout<<current_jtangles.at(i)*RTD<<"  ";
-                                        std::cout<<"---------------"<<std::endl;
-                                        std::cout<<" Final angles in Radian"<<std::endl;
-                                        for(int i = 0; i< 6; i++)
-                                        std::cout<<current_jtangles.at(i)<<"  ";
-                                                                                
-                                        std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
-                                        error_factor = 1;
-                                        control_counter = 0;
-                                        has_active_goal = false;                                        
+							std::cout<<" Final angles in degree"<<std::endl;
+							for(int i = 0; i< 6; i++)
+							std::cout<<current_jtangles.at(i)*RTD<<"  ";
+							std::cout<<"---------------"<<std::endl;
+							std::cout<<" Final angles in Radian"<<std::endl;
+							for(int i = 0; i< 6; i++)
+							std::cout<<current_jtangles.at(i)<<"  ";
 
-                                }
+							std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
+							error_factor = 1;
+							control_counter = 0;
+							has_active_goal = false;
+
                         }
                 }
 
@@ -339,9 +335,9 @@ namespace kinova
                 if (stop_jaco)
                 {
                         ROS_INFO(" Stopping the api control of Jaco arm...");
-                        //jaco_apictrl->stopApiCtrl();
+                        jaco_apictrl->stopApiCtrl();
                         stop_jaco = false;
-                        //jaco_apictrl->startApiCtrl();
+                        jaco_apictrl->startApiCtrl();
                 }
 
         }
