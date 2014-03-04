@@ -614,6 +614,8 @@ namespace kinova
 		//If API control was lost
 		if(lastApiControlState == true && apiControlState == false){
 
+			startApiCtrl();
+
 			setCartesianMode();
 
 			std::cout<< "API control lost, Cartesian mode enabled." <<std::endl;
