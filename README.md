@@ -24,7 +24,7 @@ cd <catkin_ws>/src
 wstool init
 ```
 ```
-wstool set JacoROS --git git@141.69.58.11:ros/jaco_driver.git
+wstool set JacoROS --git git@141.69.58.11:ros/jaco_driver.git --version=hydro
 wstool update JacoROS
 ```
 or
