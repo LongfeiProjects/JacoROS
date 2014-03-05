@@ -43,7 +43,7 @@ namespace kinova
 	  typedef actionlib::ActionServer<control_msgs::GripperCommandAction> GAS;
 	  typedef GAS::GoalHandle GoalHandle;
 	public:
-	  GripperAction(boost::shared_ptr<AbstractJaco> jaco);
+	  GripperAction(boost::shared_ptr<AbstractJaco> jaco, int fingerIndex, const char name[]);
 	  ~GripperAction();
 
 	private:
@@ -59,6 +59,8 @@ namespace kinova
 	  GoalHandle active_goal_;
 	  ros::Time goal_received_;
 
+	  int fingerIndex;
+
 	  double min_error_seen_;
 	  double goal_threshold_;
 	  double stall_velocity_threshold_;
@@ -69,6 +71,8 @@ namespace kinova
 	  void watchdog(const ros::TimerEvent &e);
 
 	  void goalCB(GoalHandle gh);
+
+	  double radToDeg(double rad);
 
 	  void cancelCB(GoalHandle gh);
 

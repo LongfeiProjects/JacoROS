@@ -34,212 +34,195 @@
 namespace kinova
 {
 
- GripperAction::GripperAction(boost::shared_ptr<AbstractJaco> jaco) :
+ GripperAction::GripperAction(boost::shared_ptr<AbstractJaco> jaco, int _fingerIndex,const char name[]) :
     node_(ros::NodeHandle()),
     jaco_(jaco),
-    action_server_(node_, "gripper_action_controller/gripper_command",
+    action_server_(node_, name,
                    boost::bind(&GripperAction::goalCB, this, _1),
                    boost::bind(&GripperAction::cancelCB, this, _1), true),
     has_active_goal_(false)
   {
-    ros::NodeHandle pn("~");
+	 ros::NodeHandle pn("~");
 
-    pn.param("goal_threshold", goal_threshold_, 0.01);
-    pn.param("stall_velocity_threshold", stall_velocity_threshold_, 1e-6);
-    pn.param("stall_timeout", stall_timeout_, 0.1);
+	 fingerIndex=_fingerIndex;
 
-    pub_controller_command_ =
-      node_.advertise<control_msgs::GripperCommand>("gripper_action_controller/control_command", 1);
-    sub_controller_state_ =
-      node_.subscribe("state", 1, &GripperAction::controlStateCB, this);
+     pn.param("goal_threshold", goal_threshold_, 0.01);
+     pn.param("stall_velocity_threshold", stall_velocity_threshold_, 1e-6);
+     pn.param("stall_timeout", stall_timeout_, 0.1);
 
-    watchdog_timer_ = node_.createTimer(ros::Duration(1.0), &GripperAction::watchdog, this);
+     pub_controller_command_ =
+    		 node_.advertise<control_msgs::GripperCommand>("gripper_action_controller/control_command", 1);
+     sub_controller_state_ =
+    		 node_.subscribe("state", 1, &GripperAction::controlStateCB, this);
 
-    ROS_INFO("Gripper Controller started");
+     watchdog_timer_ = node_.createTimer(ros::Duration(1.0), &GripperAction::watchdog, this);
+
+     ROS_INFO("Gripper Controller started");
   }
 
- GripperAction::~GripperAction()
+  GripperAction::~GripperAction()
   {
-    pub_controller_command_.shutdown();
-    sub_controller_state_.shutdown();
-    watchdog_timer_.stop();
+	 pub_controller_command_.shutdown();
+     sub_controller_state_.shutdown();
+     watchdog_timer_.stop();
   }
 
 
   void GripperAction::watchdog(const ros::TimerEvent &e)
   {
 
-	  /*
 	  ros::Time now = ros::Time::now();
 
-    // Aborts the active goal if the controller does not appear to be active.
-    if (has_active_goal_)
-    {
-      bool should_abort = false;
-      if (!last_controller_state_)
+      // Aborts the active goal if the controller does not appear to be active.
+      if (has_active_goal_)
       {
-        should_abort = true;
-        ROS_WARN("Aborting goal because we have never heard a controller state message.");
-      }
-      else if ((now - last_controller_state_->header.stamp) > ros::Duration(5.0))
-      {
-        should_abort = true;
-        ROS_WARN("Aborting goal because we haven't heard from the controller in %.3lf seconds",
-                 (now - last_controller_state_->header.stamp).toSec());
-      }
+    	  bool should_abort = false;
+    	  if (!last_controller_state_)
+    	  {
+    		  should_abort = true;
+    		  ROS_WARN("Aborting goal because we have never heard a controller state message.");
+          }
+    	  else if ((now - last_controller_state_->header.stamp) > ros::Duration(5.0))
+    	  {
+    		  should_abort = true;
+    		  ROS_WARN("Aborting goal because we haven't heard from the controller in %.3lf seconds",
+    				  (now - last_controller_state_->header.stamp).toSec());
+          }
 
-      if (should_abort)
-      {
-        // Marks the current goal as aborted.
-        active_goal_.setAborted();
-        has_active_goal_ = false;
+    	  if (should_abort)
+    	  {
+    		  // Marks the current goal as aborted.
+    		  active_goal_.setAborted();
+    		  has_active_goal_ = false;
+    	  }
       }
-    }
-    */
   }
 
   void GripperAction::goalCB(GoalHandle gh)
   {
-    // Cancels the currently active goal.
-    if (has_active_goal_)
-    {
-      // Marks the current goal as canceled.
-      active_goal_.setCanceled();
-      has_active_goal_ = false;
-    }
+	  // Cancels the currently active goal.
+      if (has_active_goal_)
+      {
+    	  // Marks the current goal as canceled.
+    	  active_goal_.setCanceled();
+    	  has_active_goal_ = false;
+      }
 
-    gh.setAccepted();
-    active_goal_ = gh;
-    has_active_goal_ = true;
-    goal_received_ = ros::Time::now();
-    min_error_seen_ = 1e10;
+      gh.setAccepted();
+      active_goal_ = gh;
+      has_active_goal_ = true;
+      goal_received_ = ros::Time::now();
+      min_error_seen_ = 1e10;
 
-    // Sends the command along to the controller.
-    pub_controller_command_.publish(active_goal_.getGoal()->command);
+      // Sends the command along to the controller.
+      pub_controller_command_.publish(active_goal_.getGoal()->command);
 
-    ROS_INFO_STREAM("Gripper target position: " << active_goal_.getGoal()->command.position << "effort: " << active_goal_.getGoal()->command.max_effort);
+      ROS_INFO_STREAM("Gripper target position: " << active_goal_.getGoal()->command.position << "effort: " << active_goal_.getGoal()->command.max_effort);
 
-    ROS_INFO("Move Joint");
-    double fingerValues[3] = {active_goal_.getGoal()->command.position};
-    if(!jaco_->setFingersValues(fingerValues)){
-    	active_goal_.setCanceled();
-    	ROS_ERROR("Cancelling goal: moveJoint didn't work.");
-    }
+      ROS_INFO("setFingersValues");
+    
+      std::vector<double> fingerPositions = jaco_->getFingersJointAngle();
 
+      double fingerValues[3] = {radToDeg(fingerPositions[0]),radToDeg(fingerPositions[1]),radToDeg(fingerPositions[2])};
 
+      fingerValues[fingerIndex] = active_goal_.getGoal()->command.position;
 
-    // wait for gripper to open/close
-     ros::Duration(5).sleep();
+      if(!jaco_->setFingersValues(fingerValues))
+      {
+    	  active_goal_.setCanceled();
+    	  ROS_ERROR("Cancelling goal: moveJoint didn't work.");
+      }
 
-
-
-     control_msgs::GripperCommandResult result;
-	result.position = active_goal_.getGoal()->command.position;
-	 result.effort = active_goal_.getGoal()->command.max_effort;
-	 result.reached_goal = true;
-	 result.stalled = false;
-
-
-	 active_goal_.setSucceeded(result);
-	 has_active_goal_ = false;
-
-
-	 control_msgs::GripperCommandFeedback feedback;
-	  feedback.position = active_goal_.getGoal()->command.position;
-	  feedback.effort = active_goal_.getGoal()->command.max_effort;
-	  feedback.reached_goal = true;
-	  feedback.stalled = false;
-
-     active_goal_.publishFeedback(feedback);
-
-     ROS_INFO("Gripper goal achieved");
-
-
-    last_movement_time_ = ros::Time::now();
+      last_movement_time_ = ros::Time::now();
   }
 
   void GripperAction::cancelCB(GoalHandle gh)
   {
-    if (active_goal_ == gh)
-    {
-      // Stops the controller.
-      if (last_controller_state_)
+	  if (active_goal_ == gh)
       {
-        control_msgs::GripperCommand stop;
-        stop.position = last_controller_state_->process_value;
-        stop.max_effort = 0.0;
-        pub_controller_command_.publish(stop);
-      }
+		  // Stops the controller.
+		  if (last_controller_state_)
+		  {
+			  control_msgs::GripperCommand stop;
+			  stop.position = last_controller_state_->process_value;
+			  stop.max_effort = 0.0;
+			  pub_controller_command_.publish(stop);
+		  }
 
-      // Marks the current goal as canceled.
-      active_goal_.setCanceled();
-      has_active_goal_ = false;
-    }
+          // Marks the current goal as canceled.
+		  active_goal_.setCanceled();
+		  has_active_goal_ = false;
+      }
+  }
+
+  double GripperAction::radToDeg(double rad)
+  {
+	  return rad*57.295779513;
   }
 
 
   void GripperAction::controlStateCB(const control_msgs::JointControllerStateConstPtr &msg)
   {
-    last_controller_state_ = msg;
-    ros::Time now = ros::Time::now();
+	  last_controller_state_ = msg;
+      ros::Time now = ros::Time::now();
 
-    if (!has_active_goal_)
-      return;
+      if (!has_active_goal_)
+    	  return;
 
-    // Ensures that the controller is tracking my setpoint.
-    if (fabs(msg->set_point - active_goal_.getGoal()->command.position) > goal_threshold_)
-    {
-      if (now - goal_received_ < ros::Duration(1.0))
+      // Ensures that the controller is tracking my setpoint.
+      if (fabs(msg->set_point - active_goal_.getGoal()->command.position) > goal_threshold_)
       {
-        return;
+    	  if (now - goal_received_ < ros::Duration(1.0))
+    	  {
+    		  return;
+    	  }
+    	  else
+    	  {
+    		  ROS_ERROR("Cancelling goal: Controller is trying to achieve a different setpoint.");
+    		  active_goal_.setCanceled();
+    		  has_active_goal_ = false;
+    	  }
+      }
+
+
+      control_msgs::GripperCommandFeedback feedback;
+      feedback.position = msg->process_value;
+      feedback.effort = msg->command;
+      feedback.reached_goal = false;
+      feedback.stalled = false;
+
+      control_msgs::GripperCommandResult result;
+      result.position = msg->process_value;
+      result.effort = msg->command;
+      result.reached_goal = false;
+      result.stalled = false;
+
+      if (fabs(msg->process_value - active_goal_.getGoal()->command.position) < goal_threshold_)
+      {
+    	  feedback.reached_goal = true;
+
+    	  result.reached_goal = true;
+    	  active_goal_.setSucceeded(result);
+    	  has_active_goal_ = false;
       }
       else
       {
-        ROS_ERROR("Cancelling goal: Controller is trying to achieve a different setpoint.");
-        active_goal_.setCanceled();
-        has_active_goal_ = false;
-      }
-    }
-
-
-    control_msgs::GripperCommandFeedback feedback;
-    feedback.position = msg->process_value;
-    feedback.effort = msg->command;
-    feedback.reached_goal = false;
-    feedback.stalled = false;
-
-    control_msgs::GripperCommandResult result;
-    result.position = msg->process_value;
-    result.effort = msg->command;
-    result.reached_goal = false;
-    result.stalled = false;
-
-    if (fabs(msg->process_value - active_goal_.getGoal()->command.position) < goal_threshold_)
-    {
-      feedback.reached_goal = true;
-
-      result.reached_goal = true;
-      active_goal_.setSucceeded(result);
-      has_active_goal_ = false;
-    }
-    else
-    {
-      // Determines if the gripper has stalled.
-      if (fabs(msg->process_value_dot) > stall_velocity_threshold_)
-      {
-        last_movement_time_ = ros::Time::now();
-      }
-      else if ((ros::Time::now() - last_movement_time_).toSec() > stall_timeout_ &&
+    	  // Determines if the gripper has stalled.
+    	  if (fabs(msg->process_value_dot) > stall_velocity_threshold_)
+    	  {
+    		  last_movement_time_ = ros::Time::now();
+    	  }
+    	  else if ((ros::Time::now() - last_movement_time_).toSec() > stall_timeout_ &&
                active_goal_.getGoal()->command.max_effort != 0.0)
-      {
-        feedback.stalled = true;
+    	  {
+    		  feedback.stalled = true;
 
-        result.stalled = true;
-        active_goal_.setAborted(result);
-        has_active_goal_ = false;
+    		  result.stalled = true;
+    		  active_goal_.setAborted(result);
+    		  has_active_goal_ = false;
+    	  }
       }
-    }
-    active_goal_.publishFeedback(feedback);
+      active_goal_.publishFeedback(feedback);
   }
 
 }

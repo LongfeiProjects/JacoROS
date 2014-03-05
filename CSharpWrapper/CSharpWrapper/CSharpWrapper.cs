@@ -739,10 +739,10 @@ namespace CSharpWrapper
 		{	
 				try
 				{
-					if (m_Arm.JacoIsReady())					
-					{
+					//if (m_Arm.JacoIsReady())					
+					//{
 						m_fingerTrajectory.Add(GenerateFingerTrajectory((float)finger_1, (float)finger_2, (float)finger_3));						
-					}
+					//}
 				}
 				catch (Exception ex)
 				{
@@ -756,10 +756,10 @@ namespace CSharpWrapper
 		{	
 			try
 			{
-				if (m_Arm.JacoIsReady())
-				{					
+				//if (m_Arm.JacoIsReady())
+				//{					
 			        m_Arm.ControlManager.SendTrajectoryFunctionnality(m_fingerTrajectory);
-				}
+				//}
 			}
 			catch (Exception ex)
 			{
@@ -773,8 +773,8 @@ namespace CSharpWrapper
 		{	
 			try
 			{
-				if (m_Arm.JacoIsReady())
-				{		 
+				//if (m_Arm.JacoIsReady())
+				//{		 
 					
 					JacoEraseTrajectories();
 					double []kk= new double [3];
@@ -786,7 +786,7 @@ namespace CSharpWrapper
 					JacoAddFingerPosition(kk[0], kk[1], kk[2]);
 					JacoSetFingersPosition();
 					
-				}
+				//}
 			}
 			catch (Exception ex)
 			{
@@ -801,8 +801,8 @@ namespace CSharpWrapper
 		{	
 			try
 			{
-				if (m_Arm.JacoIsReady())
-				{	
+				//if (m_Arm.JacoIsReady())
+				//{	
 					JacoEraseTrajectories();
 					
 					double []finger_angle= new double [3];
@@ -813,7 +813,7 @@ namespace CSharpWrapper
 					
 					JacoAddFingerPosition(finger_angle[0], finger_angle[1], finger_angle[2]);
 					JacoSetFingersPosition();	
-				}
+				//}
 			}
 			catch (Exception ex)
 			{
