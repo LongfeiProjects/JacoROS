@@ -68,13 +68,13 @@
 
 	<!-- First revolute joint & link -->
 
-	<joint name="jaco_joint_1" type="revolute">
+	<joint name="jaco_joint_1" type="continuous">
 		<!--origin xyz="0 0 0.2102" rpy="0 0 0"/--> 
         	<origin xyz="0 0 0.2725" rpy="0 0 0"/> 
 		<axis xyz="0 0 -1" rpy="0 0 0"/>
 		<parent link="jaco_base_link"/>
 		<child link="jaco_link_1"/>
-		<limit lower="${-PI}" upper="${PI}" effort="30" velocity="5"/>
+		<limit effort="30" velocity="5"/>
 	</joint>
 	<link name="jaco_link_1">
 		<inertial>
@@ -106,12 +106,12 @@
 
 	<!-- Second revolute joint & link -->
 
-	<joint name="jaco_joint_2" type="revolute">
+	<joint name="jaco_joint_2" type="continuous">
 		<origin xyz="0 0 0" rpy="-1.570796327 0 0"/>
 		<axis xyz="0 0 1"/>
 		<parent link="jaco_link_1"/>
 		<child link="jaco_link_2"/>
-		<limit lower="${-PI}" upper="${PI}" effort="30" velocity="5"/>
+		<limit effort="30" velocity="5"/>
 	</joint>
 	<link name="jaco_link_2">
 		<inertial>
@@ -142,12 +142,12 @@
   
 	<!-- Third revolute joint & link -->
 
-	<joint name="jaco_joint_3" type="revolute">
+	<joint name="jaco_joint_3" type="continuous">
 		<origin xyz="0.4100 0 0.012" rpy="0 0 0"/>
 		<axis xyz="0 0 -1"/>
 		<parent link="jaco_link_2"/>
 		<child link="jaco_link_3"/>
-		<limit lower="${-PI}" upper="${PI}" effort="30" velocity="5"/>
+		<limit effort="30" velocity="5"/>
 	</joint>
 	<link name="jaco_link_3">
 		<inertial>
@@ -177,12 +177,12 @@
 	</gazebo>
 
 	<!-- Fourth revolute joint & link -->
-	<joint name="jaco_joint_4" type="revolute">
+	<joint name="jaco_joint_4" type="continuous">
 		<origin xyz="0 0.24927682300748782 0 " rpy="-1.570796327 0 0"/>
 		<axis xyz="0 0 -1"/>
 		<parent link="jaco_link_3"/>
 		<child link="jaco_link_4"/>
-		<limit lower="${-PI}" upper="${PI}" effort="30" velocity="5"/>
+		<limit effort="30" velocity="5"/>
 	</joint>
 	<link name="jaco_link_4">
 		<inertial>
@@ -213,12 +213,12 @@
 
 
 	<!-- Fifth revolute joint & link -->
-	<joint name="jaco_joint_5" type="revolute">
+	<joint name="jaco_joint_5" type="continuous">
 		<origin xyz="0 -0.069262292 0.048497979" rpy="0.959931089 0 0"/>
 		<axis xyz="0 0 -1"/>
 		<parent link="jaco_link_4"/>
 		<child link="jaco_link_5"/>
-		<limit lower="${-PI}" upper="${PI}" effort="30" velocity="5"/>
+		<limit effort="30" velocity="5"/>
 	</joint>
 	<link name="jaco_link_5">
 		<inertial>
@@ -320,7 +320,7 @@
 			<origin xyz="0 0 0" rpy="0 0 0"/>
           <geometry>
             <mesh filename="package://jaco_description/meshes/finger.stl" 
-                scale="1 1 1"/>
+                scale="1.1 1.1 1.1"/>
           </geometry>
     </visual>
 
@@ -328,7 +328,7 @@
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 	<geometry>
         <mesh filename="package://jaco_description/meshes/finger.stl" 
-                scale="1 1 1"/>
+                scale="1.1 1.1 1.1"/>
 	</geometry>
 
 
@@ -361,14 +361,14 @@
 			<origin xyz="0 0 0" rpy="0 0 0"/>
           <geometry>
             <mesh filename="package://jaco_description/meshes/finger.stl" 
-                scale="1 1 1"/>
+                scale="1.1 1.1 1.1"/>
           </geometry>
         </visual>
 	<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 	<geometry>
             <mesh filename="package://jaco_description/meshes/finger.stl" 
-                scale="1 1 1"/>  
+                scale="1.1 1.1 1.1"/>  
 	</geometry>
 	</collision>
         </link>
@@ -399,14 +399,14 @@
 			<origin xyz="0 0 0" rpy="0 0 0"/>
           <geometry>
             <mesh filename="package://jaco_description/meshes/finger.stl" 
-                scale="1 1 1"/>
+                scale="1.1 1.1 1.1"/>
           </geometry>
         </visual>
 	<collision>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 	<geometry>
             <mesh filename="package://jaco_description/meshes/finger.stl" 
-                scale="1 1 1"/> 
+                scale="1.1 1.1 1.1"/> 
 	</geometry>
 	</collision>
       </link>
