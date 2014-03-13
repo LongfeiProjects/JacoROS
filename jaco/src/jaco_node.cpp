@@ -66,9 +66,7 @@ namespace kinova
                 ros::Rate loop_rate(100);
 		JacoJointPublisher jacoJointPublisher(jaco);	
 		JacoActionController jacoActionController(jaco);
-		GripperAction gripper_controller1(jaco,0,"gripper_action_controller1/gripper_command");
-		GripperAction gripper_controller2(jaco,1,"gripper_action_controller2/gripper_command");
-		GripperAction gripper_controller3(jaco,2,"gripper_action_controller3/gripper_command");
+		GripperAction gripper_controller(jaco);
                 		
 		while (ros::ok())
 	  	{
@@ -76,6 +74,7 @@ namespace kinova
 
 			jacoJointPublisher.update();
 			jacoActionController.update();
+            gripper_controller.update();
 					
 			ros::spinOnce();
 	    		loop_rate.sleep();

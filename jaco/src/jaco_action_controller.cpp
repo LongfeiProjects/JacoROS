@@ -24,8 +24,6 @@
  *                  - To move a trajectory in joint space
  *                  - To open or close the finger
  *                  - To move the jaco in relative cartesian space
- *                  - !!! jaco joints are controlled by P controller, so currently a "brutal/hack" controller is used on
- *                        top of jaco controller to rech a desired value !!!
  */
 
 
@@ -35,7 +33,7 @@
 
 namespace kinova
 {
-        JacoActionController::JacoActionController(boost::shared_ptr<AbstractJaco> jaco) :  jaco_apictrl(jaco), JTAC_jaco(jaco), jt_actionserver(jtacn,"joint_trajectory_action",
+        JacoActionController::JacoActionController(boost::shared_ptr<AbstractJaco> jaco) :  jaco_apictrl(jaco), JTAC_jaco(jaco), jt_actionserver(jtacn,"jaco_arm_controller/joint_trajectory_action",
                                                     boost::bind(&JacoActionController::joint_goalCB,  this, _1), boost::bind(&JacoActionController::joint_cancelCB, this, _1),false),
                                                     CMAC_jaco(jaco), cm_actionserver(cmacn,"cartesian_action",
                                                     boost::bind(&JacoActionController::cartesian_goalCB,  this, _1), boost::bind(&JacoActionController::cartesian_cancelCB, this, _1),false),
@@ -178,23 +176,24 @@ namespace kinova
 
                         if ( num_activeTrajectory == 0)
                         {
-                                        
-							jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-							movejoint_done = false;
-							joint_active_goal.setSucceeded(jtaction_res);
+     
+							    jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+							    movejoint_done = false;
+							    joint_active_goal.setSucceeded(jtaction_res);
 
-							std::cout<<" Final angles in degree"<<std::endl;
-							for(int i = 0; i< 6; i++)
-							std::cout<<current_jtangles.at(i)*RTD<<"  ";
-							std::cout<<"---------------"<<std::endl;
-							std::cout<<" Final angles in Radian"<<std::endl;
-							for(int i = 0; i< 6; i++)
-							std::cout<<current_jtangles.at(i)<<"  ";
+							    std::cout<<" Final angles in degree"<<std::endl;
+							    for(int i = 0; i< 6; i++)
+							    std::cout<<current_jtangles.at(i)*RTD<<"  ";
+							    std::cout<<"---------------"<<std::endl;
+							    std::cout<<" Final angles in Radian"<<std::endl;
+							    for(int i = 0; i< 6; i++)
+							    std::cout<<current_jtangles.at(i)<<"  "<<std::endl;
 
-							std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
-							error_factor = 1;
-							control_counter = 0;
-							has_active_goal = false;
+							    std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
+							    error_factor = 1;
+							    control_counter = 0;
+							    has_active_goal = false;
+                  
 
                         }
                 }
@@ -354,7 +353,10 @@ namespace kinova
                 ROS_INFO("Received goal: goalCB");
                 if (!setsEqual(joints_name, gh.getGoal()->trajectory.joint_names))
                 {
+                        std::cerr << gh.getGoal()->trajectory.joint_names.at(0) << " length " << gh.getGoal()->trajectory.joint_names.size() << std::endl;
+
                         ROS_ERROR("Joints on incoming goal don't match our joints");
+                        std::cerr << "Joints on incoming goal don't match our joints" << std::endl;
                         gh.setRejected();
                         return;
                 }
@@ -408,6 +410,8 @@ namespace kinova
                         // Marks the current goal as canceled.
                         joint_active_goal.setCanceled();
                         has_active_goal = false;
+
+                        std::cout << "Joint goal canceled" << std::endl;
                 }
         }
 

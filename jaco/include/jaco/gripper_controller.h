@@ -27,6 +27,7 @@
 
 
 #include "ros/ros.h"
+#include <ros/console.h>
 
 #include <actionlib/server/action_server.h>
 #include <jaco/abstract_jaco.h>
@@ -43,8 +44,10 @@ namespace kinova
 	  typedef actionlib::ActionServer<control_msgs::GripperCommandAction> GAS;
 	  typedef GAS::GoalHandle GoalHandle;
 	public:
-	  GripperAction(boost::shared_ptr<AbstractJaco> jaco, int fingerIndex, const char name[]);
+	  GripperAction(boost::shared_ptr<AbstractJaco> jaco);
 	  ~GripperAction();
+
+       void update();
 
 	private:
 
@@ -59,10 +62,15 @@ namespace kinova
 	  GoalHandle active_goal_;
 	  ros::Time goal_received_;
 
-	  int fingerIndex;
+	  double target_position;
+      double target_effort;
+
+      double opening;
 
 	  double min_error_seen_;
-	  double goal_threshold_;
+	  double goal_position_threshold_;
+      double goal_effort_threshold_;
+    
 	  double stall_velocity_threshold_;
 	  double stall_timeout_;
 	  ros::Time last_movement_time_;
@@ -75,6 +83,8 @@ namespace kinova
 	  double radToDeg(double rad);
 
 	  void cancelCB(GoalHandle gh);
+
+   
 
 
 	  void controlStateCB(const control_msgs::JointControllerStateConstPtr &msg);

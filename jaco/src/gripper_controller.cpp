@@ -28,34 +28,29 @@
  */
 
 // Author: Stuart Glaser
+// Edited: Steffen Pfiffner
+// Purpose: Interface from moveit gripper_command to jaco api.
 
 #include "jaco/gripper_controller.h"
 
 namespace kinova
 {
 
- GripperAction::GripperAction(boost::shared_ptr<AbstractJaco> jaco, int _fingerIndex,const char name[]) :
+ GripperAction::GripperAction(boost::shared_ptr<AbstractJaco> jaco) :
     node_(ros::NodeHandle()),
     jaco_(jaco),
-    action_server_(node_, name,
+    action_server_(node_, "jaco_gripper_controller/gripper_command",
                    boost::bind(&GripperAction::goalCB, this, _1),
                    boost::bind(&GripperAction::cancelCB, this, _1), true),
     has_active_goal_(false)
   {
 	 ros::NodeHandle pn("~");
 
-	 fingerIndex=_fingerIndex;
 
-     pn.param("goal_threshold", goal_threshold_, 0.01);
+     pn.param("goal_position_threshold", goal_position_threshold_, 0.1);
+     pn.param("goal_effort_threshold", goal_effort_threshold_, 0.05);
      pn.param("stall_velocity_threshold", stall_velocity_threshold_, 1e-6);
-     pn.param("stall_timeout", stall_timeout_, 0.1);
-
-     pub_controller_command_ =
-    		 node_.advertise<control_msgs::GripperCommand>("gripper_action_controller/control_command", 1);
-     sub_controller_state_ =
-    		 node_.subscribe("state", 1, &GripperAction::controlStateCB, this);
-
-     watchdog_timer_ = node_.createTimer(ros::Duration(1.0), &GripperAction::watchdog, this);
+     pn.param("stall_timeout", stall_timeout_, 5.0);
 
      ROS_INFO("Gripper Controller started");
   }
@@ -64,49 +59,22 @@ namespace kinova
   {
 	 pub_controller_command_.shutdown();
      sub_controller_state_.shutdown();
-     watchdog_timer_.stop();
+
   }
 
-
-  void GripperAction::watchdog(const ros::TimerEvent &e)
-  {
-
-	  ros::Time now = ros::Time::now();
-
-      // Aborts the active goal if the controller does not appear to be active.
-      if (has_active_goal_)
-      {
-    	  bool should_abort = false;
-    	  if (!last_controller_state_)
-    	  {
-    		  should_abort = true;
-    		  ROS_WARN("Aborting goal because we have never heard a controller state message.");
-          }
-    	  else if ((now - last_controller_state_->header.stamp) > ros::Duration(5.0))
-    	  {
-    		  should_abort = true;
-    		  ROS_WARN("Aborting goal because we haven't heard from the controller in %.3lf seconds",
-    				  (now - last_controller_state_->header.stamp).toSec());
-          }
-
-    	  if (should_abort)
-    	  {
-    		  // Marks the current goal as aborted.
-    		  active_goal_.setAborted();
-    		  has_active_goal_ = false;
-    	  }
-      }
-  }
 
   void GripperAction::goalCB(GoalHandle gh)
   {
 	  // Cancels the currently active goal.
+
       if (has_active_goal_)
       {
     	  // Marks the current goal as canceled.
     	  active_goal_.setCanceled();
     	  has_active_goal_ = false;
+          std::cout << "canceled current active goal" << std::endl;
       }
+
 
       gh.setAccepted();
       active_goal_ = gh;
@@ -115,39 +83,64 @@ namespace kinova
       min_error_seen_ = 1e10;
 
       // Sends the command along to the controller.
-      pub_controller_command_.publish(active_goal_.getGoal()->command);
+      //pub_controller_command_.publish(active_goal_.getGoal()->command);
 
       ROS_INFO_STREAM("Gripper target position: " << active_goal_.getGoal()->command.position << "effort: " << active_goal_.getGoal()->command.max_effort);
 
       ROS_INFO("setFingersValues");
     
-      std::vector<double> fingerPositions = jaco_->getFingersJointAngle();
+      std::vector<double> fingerPositionsRadian = jaco_->getFingersJointAngle();
 
-      double fingerValues[3] = {radToDeg(fingerPositions[0]),radToDeg(fingerPositions[1]),radToDeg(fingerPositions[2])};
+      std::cout << "current fingerpositions: " << fingerPositionsRadian[0] << " " << fingerPositionsRadian[1] << " " << fingerPositionsRadian[2] << std::endl;
 
-      fingerValues[fingerIndex] = active_goal_.getGoal()->command.position;
+        target_position = active_goal_.getGoal()->command.position;
+        target_effort = active_goal_.getGoal()->command.max_effort;
 
-      if(!jaco_->setFingersValues(fingerValues))
+        //determine if the gripper is supposed to be opened or closed
+        double current_position = jaco_->getFingersJointAngle()[0];
+        if(current_position > target_position){
+            opening = true;
+            std::cout << "Opening gripper" << std::endl;
+        }else{
+            opening = false;
+            std::cout << "Closing gripper" << std::endl;
+        }
+
+        
+
+        fingerPositionsRadian[0] = target_position;
+        fingerPositionsRadian[1] = target_position;
+        fingerPositionsRadian[2] = target_position;
+
+        
+
+        std::cout << "Gripper target position: " << active_goal_.getGoal()->command.position << "effort: " << active_goal_.getGoal()->command.max_effort << std::endl;
+
+
+      double fingerPositionsDegree[3] = {radToDeg(fingerPositionsRadian[0]),radToDeg(fingerPositionsRadian[1]),radToDeg(fingerPositionsRadian[2])};
+
+      
+
+
+      if(!jaco_->setFingersValues(fingerPositionsDegree))
       {
     	  active_goal_.setCanceled();
     	  ROS_ERROR("Cancelling goal: moveJoint didn't work.");
+          std::cout << "Cancelling goal because setFingers didn't work" << std::endl;
       }
 
       last_movement_time_ = ros::Time::now();
+
+      
+
+
+
   }
 
   void GripperAction::cancelCB(GoalHandle gh)
   {
 	  if (active_goal_ == gh)
       {
-		  // Stops the controller.
-		  if (last_controller_state_)
-		  {
-			  control_msgs::GripperCommand stop;
-			  stop.position = last_controller_state_->process_value;
-			  stop.max_effort = 0.0;
-			  pub_controller_command_.publish(stop);
-		  }
 
           // Marks the current goal as canceled.
 		  active_goal_.setCanceled();
@@ -160,7 +153,78 @@ namespace kinova
 	  return rad*57.295779513;
   }
 
+  void GripperAction::update()
+  {
 
+        if(has_active_goal_){
+
+            //TODO expand to 3 fingers            
+            double current_position = jaco_->getFingersJointAngle()[0];
+
+            //TODO expand to 3 fingers 
+            double current_effort = jaco_->getFingersCurrent()[0];
+
+            std::cout << "Finger effort " << current_effort << std::endl;
+
+              control_msgs::GripperCommandResult result;
+              result.position = current_position;
+              result.effort = current_effort;
+              result.reached_goal = false;
+              result.stalled = false;
+
+            //while opening the gripper the position is used to determine if the grasp was sucessfule, if closing the effort value is used. 
+
+            if(opening){
+
+                if(fabs(current_position - target_position) < goal_position_threshold_){
+                    
+                        //TODO stop movement of arm
+
+                      result.reached_goal = true;
+                      active_goal_.setSucceeded(result);
+                      has_active_goal_ = false;
+
+                      std::cout << "Gripper command successful!" << std::endl;
+
+                      return;
+                }
+                                   
+            //closing
+            }else{
+
+                 if(fabs(current_effort - target_effort) < goal_effort_threshold_){
+
+
+                      result.reached_goal = true;
+                      active_goal_.setSucceeded(result);
+                      has_active_goal_ = false;
+
+                      std::cout << "Gripper command successful!" << std::endl;
+
+                      return;
+                }
+
+            }
+                
+            if((ros::Time::now() - last_movement_time_).toSec() > stall_timeout_){
+
+    		  result.stalled = true;
+    		  active_goal_.setAborted(result);
+    		  has_active_goal_ = false;
+
+              std::cout << "Grasp failed because stalled.." << std::endl;
+
+              return;
+
+           
+
+
+            }
+
+        }
+
+  }
+/*
   void GripperAction::controlStateCB(const control_msgs::JointControllerStateConstPtr &msg)
   {
 	  last_controller_state_ = msg;
@@ -169,8 +233,10 @@ namespace kinova
       if (!has_active_goal_)
     	  return;
 
+       std::cout << "set point: " << msg->set_point << std::endl;
+
       // Ensures that the controller is tracking my setpoint.
-      if (fabs(msg->set_point - active_goal_.getGoal()->command.position) > goal_threshold_)
+      if (fabs(msg->set_point - active_goal_.getGoal()->command.position) > goal_position_threshold_)
       {
     	  if (now - goal_received_ < ros::Duration(1.0))
     	  {
@@ -197,7 +263,9 @@ namespace kinova
       result.reached_goal = false;
       result.stalled = false;
 
-      if (fabs(msg->process_value - active_goal_.getGoal()->command.position) < goal_threshold_)
+      std::cout << "process value: " << msg->process_value << std::endl;
+
+      if (fabs(msg->process_value - active_goal_.getGoal()->command.position) < goal_position_threshold_)
       {
     	  feedback.reached_goal = true;
 
@@ -224,5 +292,6 @@ namespace kinova
       }
       active_goal_.publishFeedback(feedback);
   }
+*/
 
 }
