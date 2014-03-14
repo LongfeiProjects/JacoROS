@@ -43,7 +43,7 @@ namespace kinova
         {
                 ros::NodeHandle pn("~");
                 joints_name.resize(NUM_JOINTS, "");
-                current_jtangles.resize(NUM_JOINTS, 0.0); 
+                current_jtangles.resize(NUM_JOINTS, 0.0);
 		final_jtangles.resize(NUM_JOINTS, 0.0);               
                 nextTraj_jtangles.resize(NUM_JOINTS, 0.0);
                 current_pose.resize(NUM_JOINTS, 0.0);
@@ -121,6 +121,8 @@ namespace kinova
 
                 current_time = 0.0;
                 old_time = 0.0;
+                trajectory_start_time = 0.0;
+                trajectory_duration = 0.0;
                 time_diff = 0.001;
                 derv_counter = 0;           
 
@@ -143,21 +145,24 @@ namespace kinova
                         current_jtangles = JTAC_jaco->getJointAngles();
 
                         num_activeTrajectory = JTAC_jaco->getCurrentTrajectoryNumber();
-                        
-                        if (num_jointTrajectory == num_activeTrajectory)
-                        {   
-                                for (int j = 0; j < 6; j++)                                
-                                        nextTraj_jtangles.at(j) = joint_active_goal.getGoal()->trajectory.points.at((num_jointTrajectory-num_activeTrajectory)).positions.at(j);
-                                
-                        }
-                        else
-                        {   
-                                for (int j = 0; j < 6; j++)                                
-                                        nextTraj_jtangles.at(j) = joint_active_goal.getGoal()->trajectory.points.at((num_jointTrajectory-num_activeTrajectory)-1).positions.at(j);
+
+                        //only for first trajectory point
+                        if(num_jointTrajectory == num_activeTrajectory){
+                            trajectory_start_time = old_time;
+                            for (int j = 0; j < 6; j++){                                
+                                nextTraj_jtangles.at(j) = joint_active_goal.getGoal()->trajectory.points.at(num_jointTrajectory-num_activeTrajectory).positions.at(j);
                                         
+                            }
+                        }else{//for all following points
+                        
+                    
+                            for (int j = 0; j < 6; j++){                                
+                                nextTraj_jtangles.at(j) = joint_active_goal.getGoal()->trajectory.points.at((num_jointTrajectory-num_activeTrajectory)-1).positions.at(j);
+                                            
+                            }
                         }
 
-			calculate_error_dervError(current_jtangles, nextTraj_jtangles);
+			            calculate_error_dervError(current_jtangles, nextTraj_jtangles);
 
                         // feedback
                         jtaction_fb.header.stamp = ros::Time::now();
@@ -171,31 +176,34 @@ namespace kinova
                                 jtaction_fb.error.positions.at(i) = fabs(error_jtangles.at(i));
                         }
 
-                        joint_active_goal.publishFeedback(jtaction_fb);                     
-                       
+                        joint_active_goal.publishFeedback(jtaction_fb);
 
-                        if ( num_activeTrajectory == 0)
+                        //if all trajectories have been executed
+                        if (num_activeTrajectory == 0)
                         {
-     
-							    jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-							    movejoint_done = false;
-							    joint_active_goal.setSucceeded(jtaction_res);
+                                
+                                
+                            if(ros::Time::now().toSec() > (trajectory_start_time + trajectory_duration)){
+						        jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+						        movejoint_done = false;
+						        joint_active_goal.setSucceeded(jtaction_res);
 
-							    std::cout<<" Final angles in degree"<<std::endl;
-							    for(int i = 0; i< 6; i++)
-							    std::cout<<current_jtangles.at(i)*RTD<<"  ";
-							    std::cout<<"---------------"<<std::endl;
-							    std::cout<<" Final angles in Radian"<<std::endl;
-							    for(int i = 0; i< 6; i++)
-							    std::cout<<current_jtangles.at(i)<<"  "<<std::endl;
+						        std::cout<<" Final angles in degree"<<std::endl;
+						        for(int i = 0; i< 6; i++)
+						        std::cout<<current_jtangles.at(i)*RTD<<"  ";
+						        std::cout<<"---------------"<<std::endl;
+						        std::cout<<" Final angles in Radian"<<std::endl;
+						        for(int i = 0; i< 6; i++)
+						        std::cout<<current_jtangles.at(i)<<"  "<<std::endl;
 
-							    std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
-							    error_factor = 1;
-							    control_counter = 0;
-							    has_active_goal = false;
-                  
-
+						        std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
+						        error_factor = 1;
+						        control_counter = 0;
+						        has_active_goal = false;
+                            }
+                               
                         }
+                  
                 }
 
                 // reason for putting this code here instead of placing above the movejoint_done is bcoz of traj num
@@ -396,7 +404,11 @@ namespace kinova
                         }
                 }
 
+                //save the estimated duration of the trajectory
+                trajectory_duration = gh.getGoal()->trajectory.points.at(num_jointTrajectory - 1).time_from_start.toSec();
+
                 move_joint = true;  
+
         }
 
         void JacoActionController::joint_cancelCB(JointGoalHandle gh)
@@ -525,7 +537,7 @@ namespace kinova
                 std::vector<double> finger_current_areas(3,0.0);
                 std::vector<double> finger_current_angle(3,0.0);
 
-                ros::Rate r(50); //20 hz
+                ros::Rate r(50); //hz
 
                 while (ros::ok())
                 {

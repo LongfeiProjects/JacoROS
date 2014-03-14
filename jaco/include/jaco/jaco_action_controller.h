@@ -83,7 +83,7 @@ namespace kinova
                         std::vector<std::string> joints_name; // joint state
                         std::vector<double> current_jtangles, desired_jtangles, final_jtangles, nextTraj_jtangles;
                         std::vector<double> error_jtangles, old_err_jtangles, dervErr_jtangles, old_dervErr_jtangles;
-                        double old_time, current_time, time_diff;
+                        double old_time, current_time, time_diff, trajectory_start_time, trajectory_duration;
 			void joint_goalCB(JointGoalHandle gh);
  			void joint_cancelCB(JointGoalHandle gh);			
   			JTAS jt_actionserver;	
