@@ -193,6 +193,12 @@ namespace kinova
             }else{
 
                  if(fabs(current_effort - target_effort) < goal_effort_threshold_){
+                        
+
+                      //TODO: Add check for no object
+
+                      jaco_->stopApiCtrl();
+                      jaco_->startApiCtrl();
 
 
                       result.reached_goal = true;
