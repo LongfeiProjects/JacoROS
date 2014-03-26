@@ -342,9 +342,8 @@ namespace kinova
                 if (stop_jaco)
                 {
                         ROS_INFO(" Stopping the api control of Jaco arm...");
-                        jaco_apictrl->stopApiCtrl();
+                        jaco_apictrl->stop();
                         stop_jaco = false;
-                        jaco_apictrl->startApiCtrl();
                 }
 
         }

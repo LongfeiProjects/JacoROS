@@ -53,6 +53,7 @@ namespace kinova
             		virtual bool setFingersValues(double fingers[])=0;
 			virtual bool startApiCtrl()=0;
 			virtual bool stopApiCtrl()=0;
+            virtual void stop()=0;
 			virtual bool setAngularMode()=0;
 			virtual bool setCartesianMode()=0;
 			virtual bool isApiInCtrl()=0;

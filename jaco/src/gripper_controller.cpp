@@ -75,15 +75,11 @@ namespace kinova
           std::cout << "canceled current active goal" << std::endl;
       }
 
-
       gh.setAccepted();
       active_goal_ = gh;
       has_active_goal_ = true;
       goal_received_ = ros::Time::now();
       min_error_seen_ = 1e10;
-
-      // Sends the command along to the controller.
-      //pub_controller_command_.publish(active_goal_.getGoal()->command);
 
       ROS_INFO_STREAM("Gripper target position: " << active_goal_.getGoal()->command.position << "effort: " << active_goal_.getGoal()->command.max_effort);
 
@@ -119,9 +115,6 @@ namespace kinova
 
       double fingerPositionsDegree[3] = {radToDeg(fingerPositionsRadian[0]),radToDeg(fingerPositionsRadian[1]),radToDeg(fingerPositionsRadian[2])};
 
-      
-
-
       if(!jaco_->setFingersValues(fingerPositionsDegree))
       {
     	  active_goal_.setCanceled();
@@ -130,11 +123,6 @@ namespace kinova
       }
 
       last_movement_time_ = ros::Time::now();
-
-      
-
-
-
   }
 
   void GripperAction::cancelCB(GoalHandle gh)
@@ -145,6 +133,8 @@ namespace kinova
           // Marks the current goal as canceled.
 		  active_goal_.setCanceled();
 		  has_active_goal_ = false;
+
+          jaco_->stop();
       }
   }
 
@@ -158,27 +148,25 @@ namespace kinova
 
         if(has_active_goal_){
 
-            //TODO expand to 3 fingers            
+            //here only the position of finger one is used            
             double current_position = jaco_->getFingersJointAngle()[0];
 
-            //TODO expand to 3 fingers 
-            double current_effort = jaco_->getFingersCurrent()[0];
+            //add the currents of all fingers together to form the current effort
+            double current_effort = jaco_->getFingersCurrent()[0] + jaco_->getFingersCurrent()[1] + jaco_->getFingersCurrent()[2];
 
-            std::cout << "Finger effort " << current_effort << std::endl;
-
-              control_msgs::GripperCommandResult result;
+                control_msgs::GripperCommandResult result;
               result.position = current_position;
               result.effort = current_effort;
               result.reached_goal = false;
               result.stalled = false;
 
-            //while opening the gripper the position is used to determine if the grasp was sucessfule, if closing the effort value is used. 
+            //while opening the gripper the position is used to determine if the grasp was successful, if closing the effort value is used. 
 
             if(opening){
 
                 if(fabs(current_position - target_position) < goal_position_threshold_){
                     
-                        //TODO stop movement of arm
+                      jaco_->stop();
 
                       result.reached_goal = true;
                       active_goal_.setSucceeded(result);
@@ -192,14 +180,13 @@ namespace kinova
             //closing
             }else{
 
-                 if(fabs(current_effort - target_effort) < goal_effort_threshold_){
-                        
+                 std::cout << "Current finger effort " << current_effort << std::endl;
 
+                 if(current_effort > target_effort){
+ 
                       //TODO: Add check for no object
 
-                      jaco_->stopApiCtrl();
-                      jaco_->startApiCtrl();
-
+                      jaco_->stop();
 
                       result.reached_goal = true;
                       active_goal_.setSucceeded(result);
@@ -230,6 +217,7 @@ namespace kinova
         }
 
   }
+
 /*
   void GripperAction::controlStateCB(const control_msgs::JointControllerStateConstPtr &msg)
   {

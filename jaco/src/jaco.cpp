@@ -626,6 +626,14 @@ namespace kinova
 
 	}
 
+    //stops the currently running execution immediately
+    //this is done by stopping the api and directly starting it again, because
+    //the Jaco API currently offers no other way to achieve this.
+    void Jaco::stop(){
+        stopApiCtrl();
+        startApiCtrl();
+    }
+
 
 	bool Jaco::stopApiCtrl()
 	{

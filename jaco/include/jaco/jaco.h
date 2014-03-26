@@ -91,6 +91,7 @@ namespace kinova
                         bool setFingersValues(double fingers[]);
                         bool startApiCtrl();
                         bool stopApiCtrl();
+                        void stop();
                         bool isApiInCtrl();
                         bool setAngularMode();
                         bool setCartesianMode();
