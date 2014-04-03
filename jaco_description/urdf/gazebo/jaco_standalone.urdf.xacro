@@ -11,6 +11,6 @@
 		    <origin xyz="0 0 0" />
 	  </joint>
 
-	<include filename="$(find jaco_description)/urdf/gazebo/jaco.urdf.xacro" />
+	<xacro:include filename="$(find jaco_description)/urdf/gazebo/jaco.urdf.xacro" />
 
 </robot>

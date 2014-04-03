@@ -18,8 +18,8 @@
 	</gazebo>
 
 
-	<include filename="$(find jaco_description)/urdf/gazebo/jaco.gazebo.xacro" />
-	<include filename="$(find jaco_description)/urdf/gazebo/jaco.transmissions.xacro" />
+	<xacro:include filename="$(find jaco_description)/urdf/gazebo/jaco.gazebo.xacro" />
+	<xacro:include filename="$(find jaco_description)/urdf/gazebo/jaco.transmissions.xacro" />
 
 	<material name="JacoGrey">
 	<color rgba="0.2 0.2 0.9 1.0"/>
