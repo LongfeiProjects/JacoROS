@@ -1,11 +1,13 @@
 JacoROS
 =======
 
-This is a hydro compatible version of SankarNatarajan's JacoROS packag with a MoveIt! config needed to run the Kinova Jaco arm with MoveIt! The package has been cleaned up (deleted arm_navigation stuff) and catkinized.
+This is a hydro compatible version of SankarNatarajan's JacoROS package with a MoveIt! config needed to run the Kinova Jaco arm with MoveIt! The package has been cleaned up (deleted arm_navigation stuff) and catkinized.
 
-Its possible to control the arm via RViz and move_group api. The gripper controller will be added in the next commit. The API wrapper/driver still needs some improvement. E.g. to show the correct arm and finger posture in rviz the arm needs to be moved once with the joystick. Additionally sometimes the driver needs to be restarted because the arm doesn't respond anymore. Also ikfast should be used.
+Its possible to control the arm via RViz and move_group api. A MoveIt! compatible gripper controller is included. 
 
-Gazebo worked with groovy but has not been testet with hydro/catkin yet (Needs a different arm controller config than the real arm) 
+Planned improvements:
+1. Gazebo worked with groovy but has not been testet with hydro/catkin yet (Needs a different arm controller config than the real arm) 
+2. 
 
 #### Installation:
 
@@ -23,14 +25,16 @@ source devel/setup.bash
 cd <catkin_ws>/src
 wstool init
 ```
-```
-wstool set JacoROS --git git@141.69.58.11:ros/jaco_driver.git --version=hydro
-wstool update JacoROS
-```
-or
 
 ```
 wstool set JacoROS --git https://github.com/fivef/JacoROS.git
+wstool update JacoROS
+```
+
+or from internal gitlab:
+
+```
+wstool set JacoROS --git git@141.69.58.11:ros/jaco_driver.git --version=hydro
 wstool update JacoROS
 ```
 
@@ -42,13 +46,13 @@ source <your_catkin_workspace>/devel/setup.bash
 
 ##### For Jaco USB access:
 
-####### Copy Jaco udev rule to your udev rules folder:
+###### Copy Jaco udev rule to your udev rules folder:
 ```
 cd to the cloned "JacoROS" folder
 sudo cp udev/99-jaco-arm.rules /lib/udev/rules.d/
 ```
   
-####### Copy the Kinova folder from the jaco_ros package to you home folder or alternatively install the Jaco driver as described in the Jaco documentation (docs and bins can be found in the "Jaco Software" folder):
+###### Copy the Kinova folder from the jaco_ros package to you home folder or alternatively install the Jaco driver as described in the Jaco documentation (docs and bins can be found in the "Jaco Software" folder):
 ```
 sudo cp -r Kinova ~
 ```
@@ -61,10 +65,7 @@ roslaunch jaco_moveit_config bringup_moveit_planning_execution.launch
 ```
 
 
-
-
-
-The old documentation:
+## The old documentation:
 
 **Package Description**
 
