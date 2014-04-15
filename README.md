@@ -6,21 +6,22 @@ This is a hydro compatible version of SankarNatarajan's JacoROS package with a M
 Its possible to control the arm via RViz and move_group api. A MoveIt! compatible gripper controller is included. 
 
 Planned improvements:
-1. Gazebo worked with groovy but has not been testet with hydro/catkin yet (Needs a different arm controller config than the real arm) 
-2. 
 
-#### Installation:
+1. Gazebo worked with groovy but has not been testet with hydro/catkin yet (Needs a different arm controller config than the real arm)
+2. IK fast plugin
+
+# Installation:
 
 ```sudo apt-get install ros-hydro-desktop-full ros-hydro-moveit-full mono-devel```
 
-##### Create a catkin workspaces
+## Create a catkin workspaces
 ```
 cd <catkin_ws>
 catkin_make
 source devel/setup.bash
 ```
 
-##### Clone the workspace from gitlab:
+## Clone the workspace from gitlab
 ```
 cd <catkin_ws>/src
 wstool init
@@ -44,20 +45,20 @@ Add this to your .bashrc for automatically sourcing the workspaces each time you
 source <your_catkin_workspace>/devel/setup.bash
 ```
 
-##### For Jaco USB access:
+##For Jaco USB access
 
-###### Copy Jaco udev rule to your udev rules folder:
+### Copy Jaco udev rule to your udev rules folder
 ```
 cd to the cloned "JacoROS" folder
 sudo cp udev/99-jaco-arm.rules /lib/udev/rules.d/
 ```
   
-###### Copy the Kinova folder from the jaco_ros package to you home folder or alternatively install the Jaco driver as described in the Jaco documentation (docs and bins can be found in the "Jaco Software" folder):
+### Copy the Kinova folder from the jaco_ros package to you home folder or alternatively install the Jaco driver as described in the Jaco documentation (docs and bins can be found in the "Jaco Software" folder)
 ```
 sudo cp -r Kinova ~
 ```
  
-##### start components with:
+# Start components
 
 ```
 roslaunch jaco start.launch
@@ -65,7 +66,7 @@ roslaunch jaco_moveit_config bringup_moveit_planning_execution.launch
 ```
 
 
-## The old documentation:
+# The old documentation:
 
 **Package Description**
 
