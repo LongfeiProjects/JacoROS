@@ -263,6 +263,21 @@ namespace kinova
 		joystick_axes_states_.at(1) = jacostate.joystick_axes_states[1];
 		joystick_axes_states_.at(2) = jacostate.joystick_axes_states[2];
 
+
+		//listen to joystick buttons
+		if(joystick_button_states_.at(3) == 1){
+
+			setCartesianMode();
+		}
+
+		if(joystick_button_states_.at(4) == 1){
+
+			if(!isApiInCtrl()){
+				startApiCtrl();
+			}
+
+		}
+
 	}
 
 	void Jaco::readJointStatus()
@@ -355,11 +370,9 @@ namespace kinova
 	bool Jaco::setJointSpaceTrajectory(std::vector<double> jointtrajectory)
 	{	
 
-	    /*This is dangerous because the API/ROS application can take back the API control by itself.
-		* Perhaps this should only be possible with explicit user interaction like pressing a specific joystick button.
-		*/
 		if(!isApiInCtrl()){
-			startApiCtrl();
+			std::cout<< "API is not in control. Press Button 3 on the Joystick to enable API control." <<std::endl;
+			return false;
 		}
 
 		if(!setAngularMode())
@@ -528,13 +541,10 @@ namespace kinova
 
                 jaco_exc = NULL;
 
-                /*This is dangerous because the API/ROS application can take back the API control by itself.
-                * Perhaps this should only be possible with explicit user interaction like pressing a specific joystick button.
-                */
-                if(!isApiInCtrl()){
-                	startApiCtrl();
-                }
-
+            	if(!isApiInCtrl()){
+            		std::cout<< "API is not in control. Press Button 3 on the Joystick to enable API control." <<std::endl;
+            		return false;
+            	}
 
 				if(!setAngularMode())
 				{
@@ -575,13 +585,17 @@ namespace kinova
 	{
 		jaco_exc = NULL;
 		
+		ROS_INFO_NAMED("jaco", "API control started");
+
+		std::cout<< "API control started" <<std::endl;
+
 		mono_runtime_invoke(StartAPI, jaco_classobject, NULL, &jaco_exc);		
 		
 		if (jaco_exc != NULL)	
-                {
-                	std::cout<< "!!!!!!!  Error while calling the C#wrapper startApiCtrl" <<std::endl;
-                	return false;
-                }
+		{
+			std::cout<< "!!!!!!!  Error while calling the C#wrapper startApiCtrl" <<std::endl;
+			return false;
+		}
 		else
 			return true;
 
@@ -607,6 +621,10 @@ namespace kinova
 	{
 		jaco_exc = NULL;
 		
+		ROS_INFO_NAMED("jaco", "Cartesian mode enabled.");
+
+		std::cout<< "Cartesian mode enabled." <<std::endl;
+
 		mono_runtime_invoke(SetCartesianMode, jaco_classobject, NULL, &jaco_exc);		
 		
 		if (jaco_exc != NULL)	
@@ -626,11 +644,13 @@ namespace kinova
 		//If API control was lost
 		if(lastApiControlState == true && apiControlState == false){
 
+			ROS_INFO_NAMED("jaco", "API control lost");
+
+			std::cout<< "API control lost" <<std::endl;
+
 			startApiCtrl();
 
 			setCartesianMode();
-
-			std::cout<< "API control lost, Cartesian mode enabled." <<std::endl;
 
 		}
 

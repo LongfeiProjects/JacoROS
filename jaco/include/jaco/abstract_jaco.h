@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <jaco/jaco_constants.h>
 #include <jaco/JacoPoseTrajectory.h>
 
