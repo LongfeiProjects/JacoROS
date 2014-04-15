@@ -43,7 +43,14 @@ namespace kinova
                 fingers_jointangle_.resize(NUM_FINGER_JOINTS, 0.0);
                 fingers_current_.resize(NUM_FINGER_JOINTS, 0.0);
 		pose_.resize(6, 0.0);
+
+		joystick_button_states_.resize(7, false);
+		joystick_axes_states_.resize(3, 0.0);
+
 		trajnum_ = 0;
+
+
+
 		joint_velocities_.resize(NUM_JOINTS);
 	 
 		/* ********* get parameters ********* */	  	

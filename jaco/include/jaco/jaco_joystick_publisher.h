@@ -18,40 +18,39 @@
  *
  *  Author: Sankaranarayanan Natarajan / sankar.natarajan@dfki.de
  *
- *  FILE --- jaco_node.h
+ *  Edited: Steffen Pfiffner / s.pfiffner@gmail.com
  *
- *  PURPOSE ---  This is the node that start all publishers/services/actions related to the Jaco arm
+ *
+ *  FILE --- jaco_joystick_publisher.h
+ *
+ *  PURPOSE ---  Read the joystick values from jaco arm and publish the values as sensor_msgs/Joy
+ *  			 see http://docs.ros.org/api/sensor_msgs/html/msg/Joy.html
  */
 
-#ifndef JACO_NODE_H_
-#define JACO_NODE_H_
+#ifndef JACO_JOYSTICK_PUBLISHER_H_
+#define JACO_JOYSTICK_PUBLISHER_H_
 
-#include <ros/ros.h>
+#include <vector>
 #include <jaco/abstract_jaco.h>
-#include <jaco/jaco_joint_publisher.h>
-#include <jaco/jaco_joystick_publisher.h>
-#include <jaco/jaco.h>
-#include <jaco/jaco_action_controller.h>
-#include <jaco/gripper_controller.h>
-#include <std_msgs/String.h>
-#include <geometry_msgs/Point.h>
 
-//#include <jaco/armpose.h>
+#include "ros/ros.h"
+#include "sensor_msgs/Joy.h"
+
+
 namespace kinova
 {
-	class JacoNode
+	class JacoJoystickPublisher
 	{
 		public:
-			JacoNode(char *CSharpDLL_path);
-			virtual ~JacoNode();
-                        int loop();
-                        bool apistate;  // to check whether jaco api is properly initialised
-
+			JacoJoystickPublisher(boost::shared_ptr<AbstractJaco>);
+			virtual ~JacoJoystickPublisher();
+		  	void update();			
 		private:
-			boost::shared_ptr<kinova::AbstractJaco> jaco;
+			boost::shared_ptr<AbstractJaco> jaco;
+            ros::Publisher joystick_pub;
 
-
-					
 	};
+
 }
-#endif
+
+#endif /* JACO_JOYSTICK_PUBLISHER_H_ */

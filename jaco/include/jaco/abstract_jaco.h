@@ -71,17 +71,23 @@ namespace kinova
 			std::vector<double> getPose();
 			int getCurrentTrajectoryNumber();
 
-	
+			std::vector<bool> joystick_button_states_;
+			std::vector<double> joystick_axes_states_;
+
 		protected:
-                        std::vector<std::string> joints_name_;
-                        std::vector<std::string> fingers_jointname_;
+            std::vector<std::string> joints_name_;
+            std::vector<std::string> fingers_jointname_;
 			std::vector<std::string> link_names_;	
 			std::vector<double> joint_angles_;
-                        std::vector<double> joints_current_;
-                        std::vector<double> fingers_jointangle_;
-                        std::vector<double> fingers_current_;
+            std::vector<double> joints_current_;
+            std::vector<double> fingers_jointangle_;
+            std::vector<double> fingers_current_;
 			std::vector<double> pose_;
 			int trajnum_;
+
+
+
+
 			std::vector<double> joint_velocities_;
 	};
 }

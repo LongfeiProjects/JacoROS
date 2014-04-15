@@ -60,6 +60,9 @@ namespace kinova
 		double hand_orientation[3]; // Euler angles XYZ
 		int current_trajectory;
 
+		bool joystick_button_states[7];
+		double joystick_axes_states[3];
+
 	};
 
 	class Jaco : public AbstractJaco

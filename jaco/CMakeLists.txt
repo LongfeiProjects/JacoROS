@@ -71,7 +71,7 @@ include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} ${mono-
 
 set(Include_Libs optimized ${mono-2.0_INCLUDE_LIBS} ${glib-2.0_INCLUDE_LIBS})
 
-add_executable(jaco src/abstract_jaco.cpp  src/jaco_node.cpp src/jaco.cpp src/jaco_joint_publisher.cpp src/jaco_action_controller.cpp src/gripper_controller.cpp)
+add_executable(jaco src/abstract_jaco.cpp  src/jaco_node.cpp src/jaco.cpp src/jaco_joint_publisher.cpp src/jaco_joystick_publisher src/jaco_action_controller.cpp src/gripper_controller.cpp)
 
 #If you have a package which builds messages and/or services as well as executables that use them, you #need to create an explicit dependency on the automatically-generated message target so that they are #built in the correct order:
 add_dependencies(jaco ${PROJECT_NAME}_generate_messages_cpp)

@@ -64,7 +64,8 @@ namespace kinova
 	int JacoNode::loop()
 	{
                 ros::Rate loop_rate(100);
-		JacoJointPublisher jacoJointPublisher(jaco);	
+		JacoJointPublisher jacoJointPublisher(jaco);
+		JacoJoystickPublisher jacoJoystickPublisher(jaco);
 		JacoActionController jacoActionController(jaco);
 		GripperAction gripper_controller(jaco);
                 		
@@ -73,6 +74,7 @@ namespace kinova
 			jaco -> readJacoStatus();
 
 			jacoJointPublisher.update();
+			jacoJoystickPublisher.update();
 			jacoActionController.update();
             gripper_controller.update();
 					

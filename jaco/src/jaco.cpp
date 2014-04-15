@@ -251,6 +251,18 @@ namespace kinova
 		// current number of trajectory
 		trajnum_ = jacostate.current_trajectory;	
 		
+
+		joystick_button_states_.at(0) = jacostate.joystick_button_states[0];
+		joystick_button_states_.at(1) = jacostate.joystick_button_states[1];
+		joystick_button_states_.at(2) = jacostate.joystick_button_states[2];
+		joystick_button_states_.at(3) = jacostate.joystick_button_states[3];
+		joystick_button_states_.at(4) = jacostate.joystick_button_states[4];
+		joystick_button_states_.at(5) = jacostate.joystick_button_states[5];
+		joystick_button_states_.at(6) = jacostate.joystick_button_states[6];
+		joystick_axes_states_.at(0) = jacostate.joystick_axes_states[0];
+		joystick_axes_states_.at(1) = jacostate.joystick_axes_states[1];
+		joystick_axes_states_.at(2) = jacostate.joystick_axes_states[2];
+
 	}
 
 	void Jaco::readJointStatus()

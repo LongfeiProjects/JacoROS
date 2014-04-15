@@ -94,6 +94,20 @@ namespace CSharpWrapper
 		// trajectory info
 		public int current_traj;
 		
+		//button states
+		public bool power_button;
+		public bool retract_button;
+		public bool one_button;
+		public bool two_button;
+		public bool three_button;
+		public bool left_joystick_button;
+		public bool right_joystick_button;
+		
+		//joystick states
+		public double forward_backward;
+		public double left_right;
+		public double rotate;
+		
 	
     }
 	
@@ -111,7 +125,7 @@ namespace CSharpWrapper
 		private CPointsTrajectory m_PoseTrajectory = new CPointsTrajectory();
 		private CPointsTrajectory m_fingerTrajectory = new CPointsTrajectory();
 		private CJoystickValue m_Cmd;
-		private CPosition positionLive;	
+		private CPosition positionLive = new CPosition();
 		//private CPosition positionError = new CPosition();
 		private bool m_IsEnabled = false;
 		private bool m_IsRetracting;       
@@ -270,8 +284,24 @@ namespace CSharpWrapper
 						joint_info 			= m_Arm.ControlManager.GetPositioningAngularInfo();
 						current_info 		= m_Arm.ControlManager.GetCurrentAngularInfo();
 						pose_info 			= m_Arm.ControlManager.GetCommandCartesianInfo();
-						trajectory_info		= m_Arm.ControlManager.GetInfoFIFOTrajectory();					     
-											
+						trajectory_info		= m_Arm.ControlManager.GetInfoFIFOTrajectory();
+						positionLive = m_Arm.DiagnosticManager.DataManager.GetPositionLogLiveFromJaco();
+	
+				
+						//button states
+						m_State.power_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[0]);
+						m_State.retract_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[1]);
+						m_State.one_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[2]);
+						m_State.two_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[3]);
+						m_State.three_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[4]);
+						m_State.left_joystick_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[5]);
+						m_State.right_joystick_button = Convert.ToBoolean(positionLive.JoystickValue.ButtonValue[6]);
+						
+						//joystick states
+						m_State.forward_backward = positionLive.JoystickValue.InclineFB;
+						m_State.left_right = positionLive.JoystickValue.InclineLR;
+						m_State.rotate = positionLive.JoystickValue.Rotate;
+						
 											    
 						// Based on Observation of actual model	
 						// getting joints angles
@@ -523,7 +553,8 @@ namespace CSharpWrapper
 					m_Cmd = new CJoystickValue();
 					m_Cmd.ButtonValue[2] = 1;
 					
-					m_Arm.ControlManager.SendJoystickFunctionality(m_Cmd);					
+					m_Arm.ControlManager.SendJoystickFunctionality(m_Cmd);	
+				
 					
 					
 					while(m_IsRetracting)
