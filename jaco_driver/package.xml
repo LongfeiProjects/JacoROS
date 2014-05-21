@@ -20,15 +20,11 @@
   <!-- Dependencies needed after this package is compiled. -->
   <run_depend>jaco_description</run_depend>
   <run_depend>jaco</run_depend>
-  <run_depend>jaco_smach</run_depend>
   <run_depend>jaco_moveit_config</run_depend>
 
   <!-- Dependencies needed only for running tests. -->
 
-
-
-
-
-
-
+  <export>
+   <metapackage />
+  </export>
 </package>
