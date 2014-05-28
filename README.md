@@ -49,13 +49,13 @@ source <your_catkin_workspace>/devel/setup.bash
 
 ### Copy Jaco udev rule to your udev rules folder
 ```
-cd to the cloned "JacoROS" folder
-sudo cp udev/99-jaco-arm.rules /lib/udev/rules.d/
+cd to the cloned "JacoROS" folder (e.g. cd ~/catkin_ws/src/marvin_robot/sub_jacoros)
+sudo cp udev/99-jaco-arm.rules /etc/udev/rules.d/
 ```
   
 ### Copy the Kinova folder from the jaco_ros package to you home folder or alternatively install the Jaco driver as described in the Jaco documentation (docs and bins can be found in the "Jaco Software" folder)
 ```
-sudo cp -r Kinova ~
+cp -r Kinova ~
 ```
  
 # Start components
