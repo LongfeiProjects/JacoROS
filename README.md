@@ -57,6 +57,11 @@ sudo cp udev/99-jaco-arm.rules /etc/udev/rules.d/
 ```
 cp -r Kinova ~
 ```
+
+###Problem with USB 3.0 (xHCI) June 2014
+Disable USB 3.0 in the BIOS chipset settings to enable eHCI.
+Todo: try with Ubuntu 14.04
+
  
 # Start components
 
