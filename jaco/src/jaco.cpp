@@ -174,6 +174,10 @@ namespace kinova
  
             mono_runtime_invoke(JacoConstructor, jaco_classobject, args, &jaco_exc);
 
+            //retract();
+
+            closeFingers();
+
             lastApiControlState = false;
 
 		if (jaco_exc != NULL)	
@@ -203,7 +207,7 @@ namespace kinova
 	
 	void Jaco::readJacoStatus()
 	{	
-        setCartesianModeAfterApiControlLost();
+        //setCartesianModeAfterApiControlLost();
 
 
 		jaco_exc = NULL;
@@ -652,18 +656,23 @@ namespace kinova
 
 			setCartesianMode();
 
+			stopApiCtrl();
+
 		}
 
 		lastApiControlState = apiControlState;
 
+		return true;
+
 	}
 
     //stops the currently running execution immediately
-    //this is done by stopping the api and directly starting it again, because
-    //the Jaco API currently offers no other way to achieve this.
     void Jaco::stop(){
-        stopApiCtrl();
-        startApiCtrl();
+
+    	std::cout<< "Execution stopped. Collision with something (Octomap, Object?)" <<std::endl;
+    	ROS_WARN_NAMED("jaco", "Execution stopped. Collision with something (Octomap, Object?)");
+
+        eraseTrajectories();
     }
 
 
