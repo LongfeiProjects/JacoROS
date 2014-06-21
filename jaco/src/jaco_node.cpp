@@ -56,7 +56,7 @@ namespace kinova
 	{
                 if(apistate)
                 {
-                        jaco->restoreFactorySetting();
+                        //jaco->restoreFactorySetting();
                         jaco->stopApiCtrl();
                 }
 	}	
