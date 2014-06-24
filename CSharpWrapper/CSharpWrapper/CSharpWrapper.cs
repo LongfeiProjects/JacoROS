@@ -164,9 +164,7 @@ namespace CSharpWrapper
 				m_Arm.ControlManager.EraseTrajectories();
 				// deleting the previous error log
 				m_Arm.DiagnosticManager.DataManager.DeleteErrorLog();
-	
-				// restore factory setting
-				JacoFactoryRestore();
+
 				// set the arm flag to true 
 				m_IsEnabled = true;
 								
