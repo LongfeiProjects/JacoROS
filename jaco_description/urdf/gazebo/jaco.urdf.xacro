@@ -52,6 +52,34 @@
         <material>Gazebo/Yellow</material>
         <turnGravityOff>true</turnGravityOff>
     </gazebo>
+
+    <joint name="jaco_base_cabels_joint" type="fixed">
+    <parent link="jaco_base_link"/>
+    <child link="cabels"/>
+    <origin xyz="0 0.06 0.05"/>
+    </joint>
+
+
+    <link name="cabels">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.08 0.09 0.2" />
+      </geometry>
+
+      <material name="black">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.1 0.1 0.2" />
+      </geometry>
+    </collision>
+ 
+    </link>
+
     <!-- First revolute joint & link -->
     <joint name="jaco_joint_1" type="continuous">
         <!--origin xyz="0 0 0.2102" rpy="0 0 0"/-->
