@@ -181,6 +181,14 @@ namespace kinova
                         //if all trajectories have been executed
                         if (num_activeTrajectory == 0)
                         {
+                        	if (!jaco_apictrl.isApiInCtrl()){
+
+
+                        		jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::ABORTED;
+                        		joint_active_goal.setAborted(jtaction_res);
+                        		return;
+
+                        	}
                                 
                                 
                             if(ros::Time::now().toSec() > (trajectory_start_time + trajectory_duration)){
