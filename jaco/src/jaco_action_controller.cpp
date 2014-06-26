@@ -378,9 +378,6 @@ namespace kinova
                         has_active_goal = false;
                 }
 
-                gh.setAccepted();
-                joint_active_goal = gh;
-                has_active_goal = true;
 
                 // Sends the trajectory along to the controller
                 ROS_DEBUG("Publishing trajectory");                
@@ -388,6 +385,17 @@ namespace kinova
                 int ct = 0;
                 num_jointTrajectory = 0;
                 num_jointTrajectory = gh.getGoal()->trajectory.points.size();
+
+                if (num_jointTrajectory > 50){
+                    ROS_ERROR("Trajectory longer than 50. Rejected!");
+                    std::cerr << "Trajectory longer than 50. Rejected!" << std::endl;
+                    gh.setRejected();
+                    return;
+                }
+
+                gh.setAccepted();
+                joint_active_goal = gh;
+                has_active_goal = true;
 
 
                 desired_jtangles.resize(num_jointTrajectory * 6);
