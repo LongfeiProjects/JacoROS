@@ -63,7 +63,7 @@ namespace kinova
 	
 	int JacoNode::loop()
 	{
-                ros::Rate loop_rate(30);
+                ros::Rate loop_rate(100);
 		JacoJointPublisher jacoJointPublisher(jaco);
 		JacoJoystickPublisher jacoJoystickPublisher(jaco);
 		JacoActionController jacoActionController(jaco);
