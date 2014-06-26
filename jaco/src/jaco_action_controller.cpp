@@ -181,34 +181,40 @@ namespace kinova
                         //if all trajectories have been executed
                         if (num_activeTrajectory == 0)
                         {
-                        	if (!jaco_apictrl.isApiInCtrl()){
+                        	if (FAC_jaco->isApiInCtrl()){
 
+                                if(ros::Time::now().toSec() > (trajectory_start_time + trajectory_duration)){
+                                    jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+                                    movejoint_done = false;
+                                    joint_active_goal.setSucceeded(jtaction_res);
 
-                        		jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::ABORTED;
-                        		joint_active_goal.setAborted(jtaction_res);
-                        		return;
+                                    std::cout<<" Final angles in degree"<<std::endl;
+                                    for(int i = 0; i< 6; i++)
+                                    std::cout<<current_jtangles.at(i)*RTD<<"  ";
+                                    std::cout<<"---------------"<<std::endl;
+                                    std::cout<<" Final angles in Radian"<<std::endl;
+                                    for(int i = 0; i< 6; i++)
+                                    std::cout<<current_jtangles.at(i)<<"  "<<std::endl;
 
-                        	}
-                                
-                                
-                            if(ros::Time::now().toSec() > (trajectory_start_time + trajectory_duration)){
-						        jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-						        movejoint_done = false;
-						        joint_active_goal.setSucceeded(jtaction_res);
+                                    std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
+                                    error_factor = 1;
+                                    control_counter = 0;
+                                    has_active_goal = false;
+                                }
 
-						        std::cout<<" Final angles in degree"<<std::endl;
-						        for(int i = 0; i< 6; i++)
-						        std::cout<<current_jtangles.at(i)*RTD<<"  ";
-						        std::cout<<"---------------"<<std::endl;
-						        std::cout<<" Final angles in Radian"<<std::endl;
-						        for(int i = 0; i< 6; i++)
-						        std::cout<<current_jtangles.at(i)<<"  "<<std::endl;
+                     
+                        		
 
-						        std::cerr<<"!!!!!!!!  finished !!!!!!!!!!!!"<<std::endl;
-						        error_factor = 1;
-						        control_counter = 0;
-						        has_active_goal = false;
+                        	}else{
+
+                                std::cerr<<"No active trajectories but API is not in control. Aborted!"<<std::endl;
+                                jtaction_res.error_code = control_msgs::FollowJointTrajectoryResult::GOAL_TOLERANCE_VIOLATED;
+                                joint_active_goal.setAborted(jtaction_res);
+
                             }
+                                
+                                
+                           
                                
                         }
                   
