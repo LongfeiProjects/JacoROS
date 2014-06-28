@@ -116,14 +116,16 @@
         <material>Gazebo/Red</material>
         <turnGravityOff>true</turnGravityOff>
     </gazebo>
+
     <!-- Second revolute joint & link -->
-    <joint name="jaco_joint_2" type="continuous">
+    <joint name="jaco_joint_2" type="revolute">
         <origin rpy="-1.570796327 0 0" xyz="0 0 0"/>
         <axis xyz="0 0 1"/>
         <parent link="jaco_link_1"/>
         <child link="jaco_link_2"/>
-        <limit effort="30" velocity="5"/>
+        <limit effort="30" lower="${-PI+PI/8}" upper="${PI/8}" velocity="5"/>
     </joint>
+
     <link name="jaco_link_2">
         <inertial>
             <mass value="1"/>
