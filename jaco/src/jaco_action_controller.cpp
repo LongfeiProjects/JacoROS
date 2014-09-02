@@ -400,7 +400,7 @@ namespace kinova
                 num_jointTrajectory = 0;
                 num_jointTrajectory = gh.getGoal()->trajectory.points.size();
 
-                if (num_jointTrajectory > 50){
+                if (num_jointTrajectory > 100){
                     ROS_ERROR("Trajectory longer than 50. Rejected!");
                     std::cerr << "Trajectory longer than 50. Rejected!" << std::endl;
                     gh.setRejected();
