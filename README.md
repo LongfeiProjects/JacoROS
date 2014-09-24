@@ -1,7 +1,7 @@
 JacoROS
 =======
 
-This is a hydro compatible version of SankarNatarajan's JacoROS package with a MoveIt! config needed to run the Kinova Jaco arm with MoveIt! The package has been cleaned up (deleted arm_navigation stuff) and catkinized.
+This is a Hydro and Indigo (Ubuntu 12.04 and Ubuntu 14.04) compatible version of SankarNatarajan's JacoROS package with a MoveIt! config needed to run the Kinova Jaco arm with MoveIt! The package has been cleaned up (deleted arm_navigation stuff) and catkinized.
 
 Its possible to control the arm via RViz and move_group api. A MoveIt! compatible gripper controller is included. 
 
@@ -58,9 +58,8 @@ sudo cp udev/99-jaco-arm.rules /etc/udev/rules.d/
 cp -r Kinova ~
 ```
 
-###Problem with USB 3.0 (xHCI) June 2014
+###Problem with USB 3.0 (xHCI) June 2014 on Ubuntu 12.04 and 14.04
 Disable USB 3.0 in the BIOS chipset settings to enable eHCI.
-Todo: try with Ubuntu 14.04
 
  
 # Start components
