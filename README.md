@@ -1,5 +1,6 @@
 
-!This is not used anymore! Use this https://github.com/iki-wgt/jaco-ros.git instead!
+This is not used anymore! Use this https://github.com/iki-wgt/jaco-ros.git instead!
+=======
 
 JacoROS
 =======
